@@ -1,2 +1,4 @@
-Flask
-flake8
+Flask==2.2.5
+flake8==6.0.0
+pytest==7.4.0
+requests==2.31.0
