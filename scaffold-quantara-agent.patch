@@ -1,0 +1,197 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: scaffold noreply@example.com
+Date: Thu, 11 Jun 2026 00:00:00 +0000
+Subject: [PATCH] Scaffold: Tool Gateway, provenance logger, Quantara adapter stub,
+ Terraform IaC stub, CI, RAG demo, MPFR demo, prototype README
+ infra/README.md                          |  3 +
+ infra/main.tf                             | 18 +
+ services/provenance/logger.py             | 10 +
+ services/quantara/adapter.py              | 10 +
+ services/tool-gateway/server.py           | 18 +
+ services/retrieval/rag_demo.py            | 48 +
+ services/numeric/mpfr_demo.py             | 28 +
+ prototype/README.md                       | 11 +
+ .github/workflows/ci.yaml                 | 12 +
+ 9 files changed, 158 insertions(+)
+ create mode 100644 infra/README.md
+ create mode 100644 infra/main.tf
+ create mode 100644 services/provenance/logger.py
+ create mode 100644 services/quantara/adapter.py
+ create mode 100644 services/tool-gateway/server.py
+ create mode 100644 services/retrieval/rag_demo.py
+ create mode 100644 services/numeric/mpfr_demo.py
+ create mode 100644 prototype/README.md
+ create mode 100644 .github/workflows/ci.yaml
+diff --git a/infra/README.md b/infra/README.md
+new file mode 100644
+index 0000000..e69de29
+--- /dev/null
++++ b/infra/README.md
+@@ -0,0 +1,3 @@
++Terraform stubs for IBM Cloud + Cloudflare mapping.
++* Not production-ready — fill provider credentials and variables before apply.
++
+diff --git a/infra/main.tf b/infra/main.tf
+new file mode 100644
+index 0000000..b3a7f6e
+--- /dev/null
++++ b/infra/main.tf
+@@ -0,0 +1,18 @@
++# Terraform placeholder: IBM Cloud + Cloudflare provider stubs
++# Fill provider configs and variables before running terraform init / apply.
++terraform {
+required_version = ">= 1.0" +} +provider "ibm" {
+configure with your IBM Cloud provider block
++}
++provider "cloudflare" {
+configure with your Cloudflare provider block
++}
++resource "null_resource" "placeholder" {}
++
+diff --git a/services/provenance/logger.py b/services/provenance/logger.py
+new file mode 100644
+index 0000000..8c9a7f1
+--- /dev/null
++++ b/services/provenance/logger.py
+@@ -0,0 +1,10 @@
++# Simple provenance logger stub
++import json, time, os
++LOGPATH = os.environ.get('PROVENANCE_LOG','provenance.log')
++def log(entry):
+entry['ts'] = time.time()
+with open(LOGPATH,'a') as f:
+text
+
+Collapse
+
+ Copy
+   f.write(json.dumps(entry) + "\n")
+diff --git a/services/quantara/adapter.py b/services/quantara/adapter.py
+new file mode 100644
+index 0000000..d9a2e5c
+--- /dev/null
++++ b/services/quantara/adapter.py
+@@ -0,0 +1,10 @@
++# Quantara adapter stub: replace with real Quantara SDK calls
++def run_quantara_sim(sim_inputs: dict):
+deterministic stubbed simulation run
+run_id = "quantara-stub-001"
+outputs = {"status":"ok","result":{"value":42},"precision_bits":64}
+provenance = {"run_id": run_id, "inputs": sim_inputs}
+return run_id, outputs, provenance
+diff --git a/services/tool-gateway/server.py b/services/tool-gateway/server.py
+new file mode 100644
+index 0000000..f5c3d2a
+--- /dev/null
++++ b/services/tool-gateway/server.py
+@@ -0,0 +1,18 @@
++# Tool Gateway stub (Python/Flask)
++from flask import Flask, request, jsonify
++app = Flask(name)
++@app.route('/call_tool', methods=['POST'])
++def call_tool():
+payload = request.json
+policy check stub
+if payload.get('tool') == 'quantara':
+text
+
+Collapse
+
+ Copy
+   return jsonify({"status":"ok","run_id":"stub-run-001","output":"quantara stub output"})
+return jsonify({"status":"rejected","reason":"unknown tool"}), 400
++if name == 'main':
+app.run(host='0.0.0.0', port=8080)
+diff --git a/services/retrieval/rag_demo.py b/services/retrieval/rag_demo.py
+new file mode 100644
+index 0000000..c8f9a7b
+--- /dev/null
++++ b/services/retrieval/rag_demo.py
+@@ -0,0 +1,48 @@
++# Retrieval + RAG demo (placeholder): uses FAISS-like interface stub
++# Replace with real vector DB (FAISS/Milvus/RedisVector) and LLM calls.
++from typing import List, Dict
++def index_documents(docs: List[Dict]):
+stub: store docs in-memory (replace with vector index)
+global DOCS
+DOCS = docs
+return True
++def retrieve(query: str, k: int = 3):
+stub: naive keyword match
+hits = []
+for d in DOCS:
+text
+
+Collapse
+
+ Copy
+   score = sum(1 for w in query.split() if w.lower() in (d.get('text') or '').lower())
+text
+
+Collapse
+
+ Copy
+   if score: hits.append((score, d))
+hits.sort(reverse=True, key=lambda x: x[0])
+return [h[1] for h in hits[:k]]
++def aggregate_answer(query: str):
+hits = retrieve(query)
+stub LLM aggregation: concatenate hits
+context = "\n---\n".join(h.get('text','') for h in hits)
+answer = f"RAG-aggregated answer for '{query}':\n{context}"
+provenance = {"retrieved_ids": [h.get('id') for h in hits]}
+return answer, provenance
++if name == 'main':
+docs = [
+text
+
+Collapse
+
+ Copy
+   {"id":"d1","text":"Quantara simulation docs and examples."},
+text
+
+Collapse
+
+ Copy
+   {"id":"d2","text":"High-precision numeric kernels: MPFR usage."},
+text
+
+Collapse
+
+ Copy
+   {"id":"d3","text":"Agent orchestration and provenance patterns."},
+]
+index_documents(docs)
+print(aggregate_answer("MPFR numeric kernels"))
+diff --git a/services/numeric/mpfr_demo.py b/services/numeric/mpfr_demo.py
+new file mode 100644
+index 0000000..7f1b2c4
+--- /dev/null
++++ b/services/numeric/mpfr_demo.py
+@@ -0,0 +1,28 @@
++# MPFR numeric demo stub (placeholder)
++# For production, use python bindings to MPFR/Arb (e.g., mpmath/gmpy2 or Rust+MPFR via FFI)
++import subprocess, json
++def high_precision_add(a: str, b: str, scale: int = 80):
+placeholder using bc for demonstration of arbitrary-scale decimal addition
+expr = f"scale={scale}; {a} + {b}"
+proc = subprocess.run(["bc", "-l"], input=expr.encode(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+if proc.returncode != 0:
+text
+
+Collapse
+
+ Copy
+   raise RuntimeError(proc.stderr.decode())
+return proc.stdout.decode().strip()
++def demo():
+a = "1/7"
+b = "2/13"
+res = high_precision_add(a, b, scale=200)
+provenance = {"method":"bc-placeholder","scale":200}
+return {"result": res, "provenance": provenance}
++if name == 'main':
+print(json.dumps(demo(), indent=2))
+
+git mailed patch
