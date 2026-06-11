@@ -12,10 +12,10 @@ jobs:
       - name: Install deps
         run: |
           python3 -m pip install --upgrade pip
+          pip install -e .
           pip install -r requirements.txt
       - name: Run flake8
         run: flake8
       - name: Run tests
         run: |
-          pip install pytest
           pytest -q
